@@ -56,8 +56,13 @@ button {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 284px minmax(0, 1fr);
+  grid-template-columns: 64px minmax(0, 1fr);
   min-height: 100vh;
+  transition: grid-template-columns 0.22s ease;
+}
+
+.app-shell:has(.sidebar:hover) {
+  grid-template-columns: 284px minmax(0, 1fr);
 }
 
 .sidebar {
@@ -69,8 +74,34 @@ button {
   gap: 30px;
   border-right: 1px solid rgba(13, 27, 34, 0.08);
   background: rgba(255, 255, 255, 0.72);
-  padding: 26px 18px;
+  padding: 26px 12px;
   backdrop-filter: blur(28px);
+  overflow: hidden;
+  width: 64px;
+  transition: width 0.22s ease, padding 0.22s ease;
+  flex-shrink: 0;
+}
+
+.sidebar:hover {
+  width: 284px;
+  padding: 26px 18px;
+}
+
+.sidebar .brand span,
+.sidebar .brand strong,
+.sidebar .nav-item span,
+.sidebar .sidebar-status {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sidebar:hover .brand span,
+.sidebar:hover .brand strong,
+.sidebar:hover .nav-item span,
+.sidebar:hover .sidebar-status {
+  opacity: 1;
 }
 
 .brand {
@@ -1117,18 +1148,18 @@ progress::-webkit-progress-value {
 }
 
 .status-tag.green {
-  background: rgba(119, 173, 64, 0.14);
-  color: #5d8d29;
+  background: #16a34a;
+  color: #fff;
 }
 
 .status-tag.blue {
-  background: rgba(49, 155, 219, 0.14);
-  color: #1c78b1;
+  background: #2563eb;
+  color: #fff;
 }
 
 .status-tag.amber {
-  background: rgba(244, 163, 64, 0.16);
-  color: #a86614;
+  background: #d97706;
+  color: #fff;
 }
 
 .client-detail-header {

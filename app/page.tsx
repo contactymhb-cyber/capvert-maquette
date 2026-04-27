@@ -318,8 +318,8 @@ const planningEntries: PlanningEntry[] = [
 
 export default function Home() {
   const [activePage, setActivePage] = useState<PageKey>("clients");
-  const [clientVariant, setClientVariant] = useState<VisualVariant>("V1");
-  const [planningVariant, setPlanningVariant] = useState<VisualVariant>("V1");
+  const clientVariant: VisualVariant = "V1";
+  const planningVariant: VisualVariant = "V1";
   const [activity, setActivity] = useState<ActivityType>("GMS");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -420,27 +420,7 @@ export default function Home() {
           <div className="page-title">
             <h1>{pageTitles[activePage]}</h1>
           </div>
-          {(activePage === "clients" || activePage === "planning") && (
-            <div className="view-switch variant-switch">
-              {(["V1", "V2", "V3"] as VisualVariant[]).map((variant) => (
-                <button
-                  className={
-                    (activePage === "clients" ? clientVariant : planningVariant) === variant
-                      ? "team-pill active"
-                      : "team-pill"
-                  }
-                  key={variant}
-                  onClick={() =>
-                    activePage === "clients"
-                      ? setClientVariant(variant)
-                      : setPlanningVariant(variant)
-                  }
-                >
-                  {variant}
-                </button>
-              ))}
-            </div>
-          )}
+
           <div className="top-actions">
             <button className="icon-button" aria-label="Notifications">
               <Bell size={19} />
@@ -1131,152 +1111,143 @@ function PlanningPage({ variant }: { variant: VisualVariant }) {
   );
 }
 
-/* ─── PAGE ACCUEIL ─── */
+/* ─── DASHBOARD ADMIN ─── */
 function HomePage() {
+  const [period, setPeriod] = useState<"semaine" | "mois" | "annee">("mois");
+
+  const data = {
+    semaine: {
+      ca_total: "48 200 EUR", ca_gms: "31 400 EUR", ca_sol: "16 800 EUR",
+      obj_gms: 34000, real_gms: 31400, obj_sol: 18000, real_sol: 16800,
+      interventions: 38, reportes: 2, taux: 94,
+      gms_bar: [72,85,68,90,78,82,95], sol_bar: [55,60,48,70,65,58,72],
+    },
+    mois: {
+      ca_total: "184 600 EUR", ca_gms: "119 400 EUR", ca_sol: "65 200 EUR",
+      obj_gms: 130000, real_gms: 119400, obj_sol: 70000, real_sol: 65200,
+      interventions: 156, reportes: 7, taux: 95,
+      gms_bar: [68,74,82,78,91,85,88,72,90,85,78,94], sol_bar: [52,60,55,70,64,58,72,65,68,74,70,78],
+    },
+    annee: {
+      ca_total: "2 134 000 EUR", ca_gms: "1 380 000 EUR", ca_sol: "754 000 EUR",
+      obj_gms: 1500000, real_gms: 1380000, obj_sol: 800000, real_sol: 754000,
+      interventions: 1872, reportes: 84, taux: 95,
+      gms_bar: [78,82,88,91,85,90,87,92,84,89,93,88], sol_bar: [60,65,70,72,68,75,71,78,73,76,80,74],
+    },
+  };
+
+  const d = data[period];
+  const pctGms = Math.round((d.real_gms / d.obj_gms) * 100);
+  const pctSol = Math.round((d.real_sol / d.obj_sol) * 100);
+
   return (
     <section>
-      <div className="overview">
+      {/* Période */}
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:22}}>
         <div>
-          <div className="hero-panel">
-            <div className="hero-copy">
-              <span>Cap Vert Operations</span>
-              <h2>Tableau de bord</h2>
-              <p>Synthese en temps reel de l'activite GMS et Solaire, des equipes terrain et des indicateurs cles.</p>
-              <div className="hero-actions">
-                <button className="primary-action"><CalendarClock size={16} /> Voir le planning</button>
-                <button className="ghost-action"><ClipboardList size={16} /> Rapports du jour</button>
-              </div>
-            </div>
-            <div className="signal-board">
-              <div className="signal-header">
-                <span>Interventions ce mois</span>
-                <strong>184</strong>
-              </div>
-              <div className="signal-chart">
-                {[60,80,45,90,70,55,85].map((h,i) => (
-                  <span key={i} style={{height:`${h}%`}} />
-                ))}
-              </div>
-              <div className="signal-footer">
-                <span><span className="green-dot" style={{display:"inline-block",width:8,height:8,borderRadius:999,background:"var(--green)",marginRight:6}} />GMS</span>
-                <span style={{marginLeft:16}}><span className="blue-dot" style={{display:"inline-block",width:8,height:8,borderRadius:999,background:"var(--blue)",marginRight:6}} />Solaire</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="kpi-grid" style={{marginTop:18}}>
-            <div className="kpi blue">
-              <div className="kpi-icon"><Building2 size={18} /></div>
-              <span>Chantiers GMS actifs</span>
-              <strong>428</strong>
-              <em>+12 ce mois</em>
-            </div>
-            <div className="kpi green">
-              <div className="kpi-icon"><SunMedium size={18} /></div>
-              <span>Installations solaires</span>
-              <strong>196</strong>
-              <em>+4 ce mois</em>
-            </div>
-            <div className="kpi blue">
-              <div className="kpi-icon"><Users size={18} /></div>
-              <span>Equipes actives</span>
-              <strong>6</strong>
-              <em>3 GMS · 3 Solaire</em>
-            </div>
-            <div className="kpi amber">
-              <div className="kpi-icon"><ClipboardList size={18} /></div>
-              <span>Rapports en retard</span>
-              <strong>3</strong>
-              <em>A regulariser</em>
-            </div>
-          </div>
+          <span style={{color:"var(--muted)",fontSize:12,fontWeight:800,textTransform:"uppercase"}}>Tableau de bord direction</span>
+          <h2 style={{margin:"4px 0 0",fontSize:"clamp(24px,3vw,36px)",lineHeight:1.1}}>Vue d&apos;ensemble</h2>
         </div>
-
-        <div className="right-column">
-          <div className="map-panel">
-            <div className="section-heading compact">
-              <div><span>Geographie</span><h3>Carte des sites</h3></div>
-            </div>
-            <div className="map-canvas">
-              <div className="island island-a" />
-              <div className="island island-b" />
-              <div className="island island-c" />
-              <button className="map-marker marker-a"><span /></button>
-              <button className="map-marker warning marker-b"><span /></button>
-              <button className="map-marker marker-c"><span /></button>
-              <div className="map-readout">
-                <div><strong>6 equipes</strong><span>terrain actif</span></div>
-              </div>
-            </div>
-            <div className="zone-list">
-              {[
-                {label:"Praia",count:"3 sites GMS",pct:72,color:"var(--blue)"},
-                {label:"Boa Vista",count:"1 site Solaire",pct:45,color:"var(--green)"},
-                {label:"Mindelo",count:"1 site GMS",pct:28,color:"var(--blue)"},
-                {label:"Sal",count:"1 site Solaire",pct:18,color:"var(--green)"},
-              ].map(z => (
-                <div className="zone-row" key={z.label}>
-                  <div><i style={{background:z.color}} />{z.label}</div>
-                  <strong>{z.count}</strong>
-                  <progress value={z.pct} max={100} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="panel">
-            <div className="section-heading compact">
-              <div><span>Activite recente</span><h3>Dernieres actions</h3></div>
-            </div>
-            <div className="timeline">
-              {[
-                {time:"09:30",label:"Maintenance preventive",sub:"Hotel Atlantico Resort · S1",tag:"Solaire"},
-                {time:"07:00",label:"Controle reserve",sub:"Auchan Express Mindelo · G3",tag:"GMS"},
-                {time:"06:30",label:"Nettoyage premium",sub:"Carrefour Palmarejo · G2",tag:"GMS"},
-                {time:"06:00",label:"Ouverture magasin",sub:"Intermarche Plateau · G1",tag:"GMS"},
-              ].map((item,i) => (
-                <div className="timeline-item" key={i}>
-                  <time>{item.time}</time>
-                  <div>
-                    <strong>{item.label}</strong>
-                    <span>{item.sub}</span>
-                    <em>{item.tag}</em>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="activity-switch">
+          {(["semaine","mois","annee"] as const).map(p => (
+            <button key={p} className={period===p?"activity-pill active":"activity-pill"}
+              onClick={()=>setPeriod(p)} style={{minHeight:40,fontSize:13}}>
+              {p.charAt(0).toUpperCase()+p.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="bottom-grid">
-        <div className="wide-panel panel">
-          <div className="section-heading compact">
-            <div><span>Tendance</span><h3>Interventions sur 7 jours</h3></div>
-          </div>
-          <div className="line-chart">
-            <svg viewBox="0 0 560 170" preserveAspectRatio="none">
-              <polyline fill="none" stroke="var(--blue)" strokeWidth="2.5" points="0,120 80,90 160,105 240,60 320,75 400,40 480,55 560,30" />
-              <polyline fill="none" stroke="var(--green)" strokeWidth="2.5" points="0,140 80,130 160,125 240,115 320,120 400,100 480,110 560,90" />
-            </svg>
-            <div className="chart-legend">
-              <span><span className="blue-dot" />GMS</span>
-              <span><span className="green-dot" />Solaire</span>
+      {/* KPIs row */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,minmax(0,1fr))",gap:14,marginBottom:18}}>
+        {[
+          {label:"CA total",val:d.ca_total,sub:"Toutes activités",color:"var(--blue)",icon:"💶"},
+          {label:"CA GMS",val:d.ca_gms,sub:`Obj. ${(d.obj_gms/1000).toFixed(0)}k EUR`,color:"var(--green)",icon:"🏪"},
+          {label:"CA Solaire",val:d.ca_sol,sub:`Obj. ${(d.obj_sol/1000).toFixed(0)}k EUR`,color:"#f59e0b",icon:"☀️"},
+          {label:"Interventions",val:d.interventions.toString(),sub:`${d.reportes} reportées`,color:"var(--ink)",icon:"📋"},
+        ].map(k => (
+          <article key={k.label} className="kpi" style={{display:"flex",flexDirection:"column",gap:8}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <span style={{fontSize:12,fontWeight:800,textTransform:"uppercase",color:"var(--muted)"}}>{k.label}</span>
+              <span style={{fontSize:20}}>{k.icon}</span>
             </div>
+            <strong style={{fontSize:"clamp(20px,2.2vw,30px)",lineHeight:1,color:k.color}}>{k.val}</strong>
+            <span style={{fontSize:12,color:"var(--muted)"}}>{k.sub}</span>
+          </article>
+        ))}
+      </div>
+
+      {/* Atteinte objectifs */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:18}}>
+        {[
+          {label:"Objectif CA GMS",pct:pctGms,real:d.ca_gms,obj:`${(d.obj_gms/1000).toFixed(0)}k EUR`,color:"var(--blue)"},
+          {label:"Objectif CA Solaire",pct:pctSol,real:d.ca_sol,obj:`${(d.obj_sol/1000).toFixed(0)}k EUR`,color:"#f59e0b"},
+        ].map(o => (
+          <article key={o.label} className="panel" style={{padding:18}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+              <span style={{fontSize:12,fontWeight:800,textTransform:"uppercase",color:"var(--muted)"}}>{o.label}</span>
+              <strong style={{fontSize:22,color:o.pct>=100?"var(--green)":o.pct>=80?"var(--blue)":"#e5484d"}}>{o.pct}%</strong>
+            </div>
+            <div style={{height:10,borderRadius:999,background:"var(--line)",overflow:"hidden",marginBottom:10}}>
+              <div style={{height:"100%",width:`${Math.min(o.pct,100)}%`,borderRadius:999,background:o.pct>=100?"var(--green)":o.pct>=80?o.color:"#e5484d",transition:"width 0.5s ease"}} />
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"var(--muted)"}}>
+              <span>Réalisé : <strong style={{color:"var(--ink)"}}>{o.real}</strong></span>
+              <span>Objectif : <strong style={{color:"var(--ink)"}}>{o.obj}</strong></span>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {/* Graphiques barres */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:18}}>
+        {[
+          {label:"Interventions GMS",bars:d.gms_bar,color:"var(--blue)"},
+          {label:"Interventions Solaire",bars:d.sol_bar,color:"#f59e0b"},
+        ].map(g => (
+          <article key={g.label} className="panel" style={{padding:18}}>
+            <div style={{marginBottom:14}}>
+              <span style={{fontSize:12,fontWeight:800,textTransform:"uppercase",color:"var(--muted)"}}>{g.label}</span>
+            </div>
+            <div style={{display:"flex",alignItems:"flex-end",gap:6,height:80}}>
+              {g.bars.map((h,i) => (
+                <div key={i} style={{flex:1,height:`${h}%`,borderRadius:"4px 4px 0 0",background:g.color,opacity:0.82,minWidth:8}} />
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {/* Chantiers reportés + taux complétion */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,minmax(0,1fr))",gap:14}}>
+        <article className="panel" style={{padding:18,gridColumn:"span 1"}}>
+          <span style={{fontSize:12,fontWeight:800,textTransform:"uppercase",color:"var(--muted)",display:"block",marginBottom:10}}>Chantiers reportés</span>
+          <strong style={{fontSize:32,color:"#e5484d"}}>{d.reportes}</strong>
+          <p style={{color:"var(--muted)",fontSize:13,marginTop:6,lineHeight:1.5}}>Interventions décalées sur la période. À reprogrammer.</p>
+        </article>
+        <article className="panel" style={{padding:18,gridColumn:"span 1"}}>
+          <span style={{fontSize:12,fontWeight:800,textTransform:"uppercase",color:"var(--muted)",display:"block",marginBottom:10}}>Taux de complétion</span>
+          <strong style={{fontSize:32,color:"var(--green)"}}>{d.taux}%</strong>
+          <p style={{color:"var(--muted)",fontSize:13,marginTop:6,lineHeight:1.5}}>Des interventions planifiées ont été réalisées.</p>
+        </article>
+        <article className="panel" style={{padding:18,background:"#10212a",color:"#fff",gridColumn:"span 1"}}>
+          <span style={{fontSize:12,fontWeight:800,textTransform:"uppercase",color:"rgba(255,255,255,0.5)",display:"block",marginBottom:10}}>Répartition CA</span>
+          <div style={{display:"flex",flexDirection:"column",gap:8,marginTop:4}}>
+            {[
+              {label:"GMS",pct:Math.round(d.real_gms/(d.real_gms+d.real_sol)*100),color:"var(--blue)"},
+              {label:"Solaire",pct:Math.round(d.real_sol/(d.real_gms+d.real_sol)*100),color:"#f59e0b"},
+            ].map(r => (
+              <div key={r.label}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"rgba(255,255,255,0.7)",marginBottom:4}}>
+                  <span>{r.label}</span><span>{r.pct}%</span>
+                </div>
+                <div style={{height:8,borderRadius:999,background:"rgba(255,255,255,0.12)"}}>
+                  <div style={{height:"100%",width:`${r.pct}%`,borderRadius:999,background:r.color}} />
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-        <div className="weather-panel panel">
-          <div className="weather-icon"><SunMedium size={22} /></div>
-          <span>Conditions terrain</span>
-          <strong>28°C</strong>
-          <p>Ensoleille — Ile de Santiago. Conditions favorables pour les interventions exterieures.</p>
-        </div>
-        <div className="activity-panel panel">
-          <span>Prochaine intervention</span>
-          <strong>14:00</strong>
-          <p>Inspection onduleur · Atlantico Resort · Equipe S3</p>
-          <div><CalendarClock size={14} /> Aujourd'hui, 23 avril 2026</div>
-        </div>
+        </article>
       </div>
     </section>
   );
