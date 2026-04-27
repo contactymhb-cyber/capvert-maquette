@@ -689,17 +689,18 @@ function ClientDetailCard({
       <div className="detail-metrics compact">
         <article className="detail-metric">
           <span>Statut</span>
-          <strong style={{
+          <span style={{
             display:"inline-block",
-            padding:"4px 12px",
+            padding:"5px 14px",
             borderRadius:999,
-            fontSize:13,
+            fontSize:12,
+            fontWeight:800,
             background: client.status==="Actif" ? "#16a34a"
                        : client.status==="Prioritaire" ? "#2563eb"
                        : "#d97706",
             color:"#fff",
-            fontWeight:800
-          }}>{client.status}</strong>
+            marginTop:8
+          }}>{client.status}</span>
         </article>
         <article className="detail-metric">
           <span>Ville</span>
