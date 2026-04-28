@@ -1459,6 +1459,7 @@ function PlanningPage({ variant }: { variant: VisualVariant }) {
   const [view, setView] = useState<PlanningView>("Mois");
   const [showMode, setShowMode] = useState<"limited" | "all">("limited");
   const [expandedDays, setExpandedDays] = useState<string[]>([]);
+  const [selectedEntry, setSelectedEntry] = useState<PlanningEntry | null>(null);
   const [monthDate, setMonthDate] = useState(new Date("2026-04-01T00:00:00"));
 
   const filteredEntries = useMemo(() => {
@@ -1669,7 +1670,7 @@ function PlanningPage({ variant }: { variant: VisualVariant }) {
                     </header>
                     <div className="month-events">
                       {visibleEntries.map((entry) => (
-                        <button className={`planning-chip ${entry.status}`} key={entry.id}>
+                        <button className={`planning-chip ${entry.status}`} key={entry.id} onClick={() => setSelectedEntry(entry)}>
                           <div className="planning-chip-head">
                             <span>{entry.start}</span>
                             <i
@@ -1694,6 +1695,20 @@ function PlanningPage({ variant }: { variant: VisualVariant }) {
                           +{hiddenCount}
                         </button>
                       )}
+                      {expandedDays.includes(cell.iso) && showMode !== "all" && (
+                        <button className="more-chip reduce-chip"
+                          onClick={() => setExpandedDays(days => days.filter(d => d !== cell.iso))}>
+                          ↑ Réduire
+                        </button>
+                      )}
+                      {expandedDays.includes(cell.iso) && (
+                        <button
+                          className="more-chip reduce-chip"
+                          onClick={() => setExpandedDays((days) => days.filter((day) => day !== cell.iso))}
+                        >
+                          ↑ Réduire
+                        </button>
+                      )}
                     </div>
                   </article>
                 );
@@ -1713,7 +1728,7 @@ function PlanningPage({ variant }: { variant: VisualVariant }) {
                 <div className="week-column-body">
                   {entries.length === 0 && <div className="empty-slot">Aucune intervention</div>}
                   {entries.map((entry) => (
-                    <button className={`planning-chip block ${entry.status}`} key={entry.id}>
+                    <button className={`planning-chip block ${entry.status}`} key={entry.id} onClick={() => setSelectedEntry(entry)}>
                       <div className="planning-chip-head">
                         <span>{entry.start}</span>
                         <i className="team-dot" style={{ background: teamColors[entry.team] }}>
@@ -1776,6 +1791,51 @@ function PlanningPage({ variant }: { variant: VisualVariant }) {
         )}
 
       </section>
+
+      {selectedEntry && (
+        <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.45)",zIndex:999,display:"flex",alignItems:"stretch",justifyContent:"flex-end"}}
+          onClick={() => setSelectedEntry(null)}>
+          <aside style={{width:400,background:"#fff",display:"flex",flexDirection:"column",boxShadow:"-6px 0 28px rgba(0,0,0,0.12)",overflowY:"auto"}}
+            onClick={e => e.stopPropagation()}>
+            <div style={{padding:"22px 24px 16px",borderBottom:"1px solid #eaecf0",display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12}}>
+              <div>
+                <span style={{fontSize:11,fontWeight:800,textTransform:"uppercase",color:"#a8b5c4",letterSpacing:"0.08em"}}>{selectedEntry.activity} · {selectedEntry.team}</span>
+                <h3 style={{margin:"6px 0 4px",fontSize:20,fontWeight:800,lineHeight:1.1}}>{selectedEntry.client}</h3>
+                <p style={{color:"#718096",fontSize:13,margin:0}}>{selectedEntry.title}</p>
+              </div>
+              <button onClick={() => setSelectedEntry(null)} style={{background:"#f4f5f7",border:"none",borderRadius:8,width:32,height:32,cursor:"pointer",fontSize:18,color:"#718096",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
+            </div>
+            <div style={{padding:"14px 24px",borderBottom:"1px solid #eaecf0"}}>
+              <span style={{display:"inline-block",padding:"5px 14px",borderRadius:999,fontSize:12,fontWeight:800,background:selectedEntry.status==="done_reported"?"#16a34a":selectedEntry.status==="done_missing_report"?"#dc2626":"#2563eb",color:"#fff"}}>
+                {selectedEntry.status==="done_reported"?"Rapport soumis":selectedEntry.status==="done_missing_report"?"Rapport manquant":"Planifiée"}
+              </span>
+            </div>
+            <div style={{padding:"8px 24px",flex:1}}>
+              {[
+                {label:"Date",val:new Date(selectedEntry.date+"T00:00:00").toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"})},
+                {label:"Heure",val:selectedEntry.start},
+                {label:"Équipe",val:selectedEntry.team},
+                {label:"Activité",val:selectedEntry.activity},
+                {label:"Client",val:selectedEntry.client},
+                {label:"Intervention",val:selectedEntry.title},
+              ].map(row=>(
+                <div key={row.label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 0",borderBottom:"1px solid #f4f5f7"}}>
+                  <span style={{fontSize:12,color:"#718096"}}>{row.label}</span>
+                  <strong style={{fontSize:13,textAlign:"right",maxWidth:220}}>{row.val}</strong>
+                </div>
+              ))}
+            </div>
+            <div style={{padding:"16px 24px",display:"flex",flexDirection:"column",gap:8,borderTop:"1px solid #eaecf0"}}>
+              <button style={{width:"100%",padding:"11px 0",borderRadius:10,background:"#16202e",color:"#fff",fontWeight:700,fontSize:13,border:"none",cursor:"pointer"}}>
+                {selectedEntry.status==="scheduled"?"Marquer comme réalisée":"Voir le rapport"}
+              </button>
+              <button style={{width:"100%",padding:"11px 0",borderRadius:10,background:"#f4f5f7",color:"#16202e",fontWeight:600,fontSize:13,border:"none",cursor:"pointer"}}>
+                Modifier l&apos;intervention
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
     </section>
   );
 }
